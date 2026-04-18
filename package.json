@@ -1,0 +1,21 @@
+{
+	"name": "ai-wallet",
+	"private": true,
+	"description": "AI Wallet — a browser extension that manages AI API keys, budgets, and permissions for open source web apps",
+	"scripts": {
+		"build": "pnpm -r build",
+		"dev": "pnpm -r --parallel dev",
+		"test": "pnpm -r test",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"typecheck": "pnpm -r typecheck"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.0",
+		"typescript": "^5.7.0"
+	},
+	"packageManager": "pnpm@9.15.0",
+	"engines": {
+		"node": ">=20"
+	}
+}

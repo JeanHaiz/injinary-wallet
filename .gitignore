@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.wxt/
+*.tsbuildinfo
+.env
+.env.local
+
+# Extension build output
+.output/
+
+# OS
+.DS_Store
+Thumbs.db
+.claude
