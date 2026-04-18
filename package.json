@@ -1,7 +1,7 @@
 {
-	"name": "ai-wallet",
+	"name": "injinary-wallet",
 	"private": true,
-	"description": "AI Wallet — a browser extension that manages AI API keys, budgets, and permissions for open source web apps",
+	"description": "Injinary Wallet — a browser extension that manages AI API keys, budgets, and permissions for open source web apps",
 	"scripts": {
 		"build": "pnpm -r build",
 		"dev": "pnpm -r --parallel dev",

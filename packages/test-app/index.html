@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>AI Wallet — Test App</title>
+	<title>Injinary Wallet — Test App</title>
 	<style>
 		* { margin: 0; padding: 0; box-sizing: border-box; }
 		body {
@@ -47,7 +47,7 @@
 	</style>
 </head>
 <body>
-	<h1>AI Wallet Test App</h1>
+	<h1>Injinary Wallet Test App</h1>
 	<p class="subtitle">End-to-end test: detect wallet, connect, make an AI call</p>
 
 	<div class="card">
@@ -65,7 +65,7 @@
 			<span class="dot red"></span>
 			<span>Not connected</span>
 		</div>
-		<button id="btn-connect" disabled>Connect to AI Wallet</button>
+		<button id="btn-connect" disabled>Connect to Injinary Wallet</button>
 	</div>
 
 	<div class="card">
@@ -115,7 +115,7 @@
 
 				function handler(event) {
 					if (event.source !== window) return;
-					if (event.data?.type !== "AI_WALLET_RPC_RESPONSE") return;
+					if (event.data?.type !== "INJINARY_WALLET_RPC_RESPONSE") return;
 					if (event.data.id !== id) return;
 					window.removeEventListener("message", handler);
 					clearTimeout(timer);
@@ -134,7 +134,7 @@
 				}, 30000);
 
 				window.addEventListener("message", handler);
-				window.postMessage({ type: "AI_WALLET_RPC", id, method, params }, "*");
+				window.postMessage({ type: "INJINARY_WALLET_RPC", id, method, params }, "*");
 			});
 		}
 
@@ -142,18 +142,18 @@
 
 		async function runDetect() {
 			const statusEl = document.getElementById("detect-status");
-			log("Checking for window.aiWallet...", "log-info");
+			log("Checking for window.injinaryWallet...", "log-info");
 
-			if (!window.aiWallet) {
-				statusEl.innerHTML = `<span class="dot red"></span><span>Not found — install the AI Wallet extension</span>`;
-				log("window.aiWallet is undefined", "log-err");
+			if (!window.injinaryWallet) {
+				statusEl.innerHTML = `<span class="dot red"></span><span>Not found — install the Injinary Wallet extension</span>`;
+				log("window.injinaryWallet is undefined", "log-err");
 				return false;
 			}
 
-			log("window.aiWallet found, calling detect()...", "log-info");
+			log("window.injinaryWallet found, calling detect()...", "log-info");
 
 			try {
-				const info = await window.aiWallet.detect();
+				const info = await window.injinaryWallet.detect();
 				if (info) {
 					statusEl.innerHTML = `<span class="dot green"></span><span>Detected! v${info.version} — ${info.capabilities.join(", ")}</span>`;
 					log(`Wallet v${info.version}, capabilities: [${info.capabilities.join(", ")}]`, "log-ok");
@@ -181,8 +181,8 @@
 			log("Requesting access...", "log-info");
 
 			try {
-				const result = await window.aiWallet.connect({
-					appName: "AI Wallet Test App",
+				const result = await window.injinaryWallet.connect({
+					appName: "Injinary Wallet Test App",
 					requestedProviders: ["openai", "anthropic"],
 					requestedBudget: { amount: 100, period: "daily" },
 				});
@@ -203,7 +203,7 @@
 				statusEl.innerHTML = `<span class="dot red"></span><span>${err.message}</span>`;
 				log(`Connect failed (code ${err.code}): ${err.message}`, "log-err");
 				btn.disabled = false;
-				btn.textContent = "Connect to AI Wallet";
+				btn.textContent = "Connect to Injinary Wallet";
 			}
 		}
 

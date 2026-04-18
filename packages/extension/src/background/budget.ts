@@ -1,7 +1,7 @@
 // ─── Budget Engine ───────────────────────────────────────────────────────────
 // Enforces spending limits and rate limits per-app.
 
-import type { AppPermission } from "@ai-wallet/shared";
+import type { AppPermission } from "@injinary-wallet/shared";
 import { getPermission } from "./permissions.js";
 
 /** Per-origin rate limiter state (in-memory, rebuilt from recent usage) */
@@ -121,4 +121,9 @@ const MODEL_PRICING: Record<string, { inputPer1k: number; outputPer1k: number }>
 	// Google
 	"google/gemini-2.0-flash": { inputPer1k: 0.0001, outputPer1k: 0.0004 },
 	"google/gemini-2.5-pro": { inputPer1k: 0.00125, outputPer1k: 0.01 },
+	// Mistral
+	"mistral/mistral-large-latest": { inputPer1k: 0.002, outputPer1k: 0.006 },
+	"mistral/mistral-medium-latest": { inputPer1k: 0.0027, outputPer1k: 0.0081 },
+	"mistral/mistral-small-latest": { inputPer1k: 0.001, outputPer1k: 0.003 },
+	"mistral/codestral-latest": { inputPer1k: 0.001, outputPer1k: 0.003 },
 };

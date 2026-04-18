@@ -1,7 +1,7 @@
 // ─── Web Crypto API Wrappers ─────────────────────────────────────────────────
 // Zero dependencies. All cryptographic operations use the native Web Crypto API.
 
-import { PBKDF2_ITERATIONS } from "@ai-wallet/shared";
+import { PBKDF2_ITERATIONS } from "@injinary-wallet/shared";
 
 const ALGORITHM = "AES-GCM" as const;
 const KEY_LENGTH = 256;

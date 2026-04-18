@@ -1,7 +1,7 @@
 {
-	"name": "@ai-wallet/sdk",
+	"name": "@injinary-wallet/sdk",
 	"version": "0.0.1",
-	"description": "SDK for web apps to interact with the AI Wallet browser extension",
+	"description": "SDK for web apps to interact with the Injinary Wallet browser extension",
 	"type": "module",
 	"main": "./dist/index.cjs",
 	"module": "./dist/index.js",
@@ -22,7 +22,7 @@
 	},
 	"dependencies": {},
 	"devDependencies": {
-		"@ai-wallet/shared": "workspace:*",
+		"@injinary-wallet/shared": "workspace:*",
 		"tsup": "^8.3.0",
 		"vitest": "^2.1.0"
 	},

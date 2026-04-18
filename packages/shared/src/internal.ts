@@ -5,7 +5,7 @@
 
 import type { BudgetPeriod, ProviderId } from "./index.js";
 
-export const INTERNAL_MSG = "AI_WALLET_INTERNAL_UI" as const;
+export const INTERNAL_MSG = "INJINARY_WALLET_INTERNAL_UI" as const;
 
 export type InternalMethod =
 	// Vault lifecycle

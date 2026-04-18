@@ -17,7 +17,7 @@ importers:
 
   packages/extension:
     dependencies:
-      '@ai-wallet/shared':
+      '@injinary-wallet/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:
@@ -36,7 +36,7 @@ importers:
 
   packages/sdk:
     devDependencies:
-      '@ai-wallet/shared':
+      '@injinary-wallet/shared':
         specifier: workspace:*
         version: link:../shared
       tsup:

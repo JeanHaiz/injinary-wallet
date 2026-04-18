@@ -1,8 +1,8 @@
-import type { WalletInfo } from "@ai-wallet/shared";
+import type { WalletInfo } from "@injinary-wallet/shared";
 import { sendRpc } from "./transport.js";
 
 /**
- * Check if the AI Wallet extension is installed and available.
+ * Check if the Injinary Wallet extension is installed and available.
  * Returns wallet info if found, null otherwise.
  */
 export async function detect(timeoutMs = 500): Promise<WalletInfo | null> {

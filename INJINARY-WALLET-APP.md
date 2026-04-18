@@ -1,11 +1,11 @@
-# Building an AI Wallet Compatible App
+# Building an Injinary Wallet Compatible App
 
-This guide shows how to build a web app that uses AI Wallet for AI capabilities. Your app never touches API keys — the user's browser extension handles authentication, billing, and provider routing.
+This guide shows how to build a web app that uses Injinary Wallet for AI capabilities. Your app never touches API keys — the user's browser extension handles authentication, billing, and provider routing.
 
 ## How It Works
 
 ```
-Your App (static site)          AI Wallet (browser extension)
+Your App (static site)          Injinary Wallet (browser extension)
      |                                    |
      |  1. detect wallet                  |
      |  --------------------------------> |
@@ -22,7 +22,7 @@ Your App (static site)          AI Wallet (browser extension)
      |  <-- normalized response           |
 ```
 
-Your app talks to `window.aiWallet`, which the extension injects into every page. You never see the user's API key.
+Your app talks to `window.injinaryWallet`, which the extension injects into every page. You never see the user's API key.
 
 ---
 
@@ -32,20 +32,20 @@ Your app talks to `window.aiWallet`, which the extension injects into every page
 
 ```html
 <script type="module">
-  // The extension injects window.aiWallet automatically.
+  // The extension injects window.injinaryWallet automatically.
   // No SDK import needed for basic usage.
 
-  const wallet = window.aiWallet;
+  const wallet = window.injinaryWallet;
 
   if (!wallet) {
-    document.body.textContent = "Please install AI Wallet";
-    // Link to: https://github.com/anthropics/ai-wallet (TODO: real URL)
-    throw new Error("AI Wallet not detected");
+    document.body.textContent = "Please install Injinary Wallet";
+    // Link to: https://github.com/anthropics/injinary-wallet (TODO: real URL)
+    throw new Error("Injinary Wallet not detected");
   }
 
   // 1. Check the wallet is responding
   const info = await wallet.detect();
-  console.log(`AI Wallet v${info.version}`, info.capabilities);
+  console.log(`Injinary Wallet v${info.version}`, info.capabilities);
 
   // 2. Request access (opens approval popup for the user)
   const permissions = await wallet.connect({
@@ -72,13 +72,13 @@ After connecting, use the SDK for AI calls (see Option B).
 ### Option B: SDK (recommended for real apps)
 
 ```bash
-npm install @ai-wallet/sdk
+npm install @injinary-wallet/sdk
 ```
 
 ```typescript
-import { createAIWallet } from "@ai-wallet/sdk";
+import { createInjinaryWallet } from "@injinary-wallet/sdk";
 
-const wallet = createAIWallet();
+const wallet = createInjinaryWallet();
 
 // Check if extension is installed
 if (!(await wallet.isAvailable())) {
@@ -112,7 +112,7 @@ console.log(response.usage);   // { promptTokens: 25, completionTokens: 12, esti
 ### Detection
 
 ```typescript
-import { createAIWallet, isAvailable, detect } from "@ai-wallet/sdk";
+import { createInjinaryWallet, isAvailable, detect } from "@injinary-wallet/sdk";
 
 // Quick boolean check
 const installed = await isAvailable();
@@ -125,7 +125,7 @@ const info = await detect();
 ### Connecting
 
 ```typescript
-const wallet = createAIWallet();
+const wallet = createInjinaryWallet();
 
 const conn = await wallet.connect({
   appName: "My App",             // Shown to user in approval dialog
@@ -253,10 +253,10 @@ conn.disconnect();
 
 ## Handling the "No Wallet" Case
 
-Not every user will have AI Wallet installed. Handle this gracefully:
+Not every user will have Injinary Wallet installed. Handle this gracefully:
 
 ```typescript
-import { isAvailable } from "@ai-wallet/sdk";
+import { isAvailable } from "@injinary-wallet/sdk";
 
 if (await isAvailable()) {
   // Full AI experience
@@ -267,8 +267,8 @@ if (await isAvailable()) {
   // 2. Fall back to asking the user to paste an API key
   // 3. Disable AI features with an explanation
   showBanner(
-    "Install AI Wallet to use AI features",
-    "https://github.com/anthropics/ai-wallet"
+    "Install Injinary Wallet to use AI features",
+    "https://github.com/anthropics/injinary-wallet"
   );
 }
 ```
@@ -277,18 +277,18 @@ if (await isAvailable()) {
 
 ## Error Handling
 
-The SDK throws `AIWalletError` with a `code` property:
+The SDK throws `InjinaryWalletError` with a `code` property:
 
 ```typescript
-import { AIWalletError } from "@ai-wallet/sdk";
+import { InjinaryWalletError } from "@injinary-wallet/sdk";
 
 try {
   const response = await conn.complete({ messages });
 } catch (err) {
-  if (err instanceof AIWalletError) {
+  if (err instanceof InjinaryWalletError) {
     switch (err.code) {
       case 4001: // WalletLocked
-        showMessage("Please unlock your AI Wallet");
+        showMessage("Please unlock your Injinary Wallet");
         break;
       case 4002: // PermissionDenied
         showMessage("This model is not allowed by your wallet settings");
@@ -337,7 +337,7 @@ A minimal but complete chat app — just HTML, no build step, no server:
 </head>
 <body>
   <h1>AI Chat</h1>
-  <div id="status">Connecting to AI Wallet...</div>
+  <div id="status">Connecting to Injinary Wallet...</div>
   <div id="messages"></div>
   <div>
     <input id="input" placeholder="Type a message..." disabled />
@@ -356,13 +356,13 @@ A minimal but complete chat app — just HTML, no build step, no server:
     // ── Connect to wallet ──
 
     async function init() {
-      if (!window.aiWallet) {
-        statusEl.textContent = "AI Wallet not found. Please install the extension.";
+      if (!window.injinaryWallet) {
+        statusEl.textContent = "Injinary Wallet not found. Please install the extension.";
         return;
       }
 
       try {
-        const perms = await window.aiWallet.connect({
+        const perms = await window.injinaryWallet.connect({
           appName: "AI Chat",
           requestedProviders: ["openai", "anthropic"],
           requestedBudget: { amount: 200, period: "daily" },
@@ -372,7 +372,7 @@ A minimal but complete chat app — just HTML, no build step, no server:
         inputEl.disabled = false;
         sendBtn.disabled = false;
 
-        // We store the permissions but use window.aiWallet for calls
+        // We store the permissions but use window.injinaryWallet for calls
         // In a real app you'd use the SDK's Connection object
         conn = perms;
       } catch (err) {
@@ -415,13 +415,13 @@ A minimal but complete chat app — just HTML, no build step, no server:
       return new Promise((resolve, reject) => {
         const id = `chat_${++rpcId}`;
         function handler(event) {
-          if (event.data?.type !== "AI_WALLET_RPC_RESPONSE" || event.data.id !== id) return;
+          if (event.data?.type !== "INJINARY_WALLET_RPC_RESPONSE" || event.data.id !== id) return;
           window.removeEventListener("message", handler);
           if (event.data.error) reject(new Error(event.data.error.message));
           else resolve(event.data.result);
         }
         window.addEventListener("message", handler);
-        window.postMessage({ type: "AI_WALLET_RPC", id, method, params }, "*");
+        window.postMessage({ type: "INJINARY_WALLET_RPC", id, method, params }, "*");
       });
     }
 

@@ -1,10 +1,10 @@
 import {
-	AI_WALLET_RPC,
-	AI_WALLET_RPC_RESPONSE,
+	INJINARY_WALLET_RPC,
+	INJINARY_WALLET_RPC_RESPONSE,
 	type RpcMethod,
 	type RpcRequest,
 	type RpcResponse,
-} from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
 import { defineContentScript } from "wxt/sandbox";
 
 const VALID_METHODS = new Set<RpcMethod>([
@@ -30,13 +30,13 @@ export default defineContentScript({
 			if (event.source !== window) return;
 
 			const data = event.data as RpcRequest;
-			if (data?.type !== AI_WALLET_RPC) return;
+			if (data?.type !== INJINARY_WALLET_RPC) return;
 			if (typeof data.id !== "string") return;
 			if (!VALID_METHODS.has(data.method)) return;
 
 			browser.runtime
 				.sendMessage({
-					type: "AI_WALLET_INTERNAL",
+					type: "INJINARY_WALLET_INTERNAL",
 					rpcMethod: data.method,
 					rpcId: data.id,
 					params: data.params,
@@ -45,7 +45,7 @@ export default defineContentScript({
 				.then((raw: unknown) => {
 					const response = raw as { result?: unknown; error?: { code: number; message: string } };
 					const rpcResponse: RpcResponse = {
-						type: AI_WALLET_RPC_RESPONSE,
+						type: INJINARY_WALLET_RPC_RESPONSE,
 						id: data.id,
 						result: response?.result,
 						error: response?.error,
@@ -54,9 +54,9 @@ export default defineContentScript({
 				})
 				.catch(() => {
 					const errorResponse: RpcResponse = {
-						type: AI_WALLET_RPC_RESPONSE,
+						type: INJINARY_WALLET_RPC_RESPONSE,
 						id: data.id,
-						error: { code: -32603, message: "AI Wallet extension not available" },
+						error: { code: -32603, message: "Injinary Wallet extension not available" },
 					};
 					window.postMessage(errorResponse, "*");
 				});

@@ -6,12 +6,12 @@
 // worker verifies the tab's actual origin (which the page cannot forge).
 
 import {
-	AI_WALLET_RPC,
-	AI_WALLET_RPC_RESPONSE,
+	INJINARY_WALLET_RPC,
+	INJINARY_WALLET_RPC_RESPONSE,
 	type RpcMethod,
 	type RpcRequest,
 	type RpcResponse,
-} from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
 
 const VALID_METHODS = new Set<RpcMethod>([
 	"ai_detectWallet",
@@ -34,14 +34,14 @@ window.addEventListener("message", (event: MessageEvent) => {
 	const data = event.data as RpcRequest;
 
 	// Validate message shape
-	if (data?.type !== AI_WALLET_RPC) return;
+	if (data?.type !== INJINARY_WALLET_RPC) return;
 	if (typeof data.id !== "string") return;
 	if (!VALID_METHODS.has(data.method)) return;
 
 	// Forward to service worker via chrome.runtime (MV3 promise-based API)
 	chrome.runtime
 		.sendMessage({
-			type: "AI_WALLET_INTERNAL",
+			type: "INJINARY_WALLET_INTERNAL",
 			rpcMethod: data.method,
 			rpcId: data.id,
 			params: data.params,
@@ -49,7 +49,7 @@ window.addEventListener("message", (event: MessageEvent) => {
 		})
 		.then((response: { result?: unknown; error?: { code: number; message: string } }) => {
 			const rpcResponse: RpcResponse = {
-				type: AI_WALLET_RPC_RESPONSE,
+				type: INJINARY_WALLET_RPC_RESPONSE,
 				id: data.id,
 				result: response?.result,
 				error: response?.error,
@@ -58,11 +58,11 @@ window.addEventListener("message", (event: MessageEvent) => {
 		})
 		.catch(() => {
 			const errorResponse: RpcResponse = {
-				type: AI_WALLET_RPC_RESPONSE,
+				type: INJINARY_WALLET_RPC_RESPONSE,
 				id: data.id,
 				error: {
 					code: -32603,
-					message: "AI Wallet extension not available",
+					message: "Injinary Wallet extension not available",
 				},
 			};
 			window.postMessage(errorResponse, "*");

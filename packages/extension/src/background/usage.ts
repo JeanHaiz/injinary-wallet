@@ -1,8 +1,8 @@
 // ─── Usage Tracking ──────────────────────────────────────────────────────────
 // Logs all AI requests for analytics and auditing. Ring buffer + daily aggregates.
 
-import type { DailyAggregate, UsageEntry } from "@ai-wallet/shared";
-import { MAX_DAILY_AGGREGATES, MAX_USAGE_LOG_ENTRIES } from "@ai-wallet/shared";
+import type { DailyAggregate, UsageEntry } from "@injinary-wallet/shared";
+import { MAX_DAILY_AGGREGATES, MAX_USAGE_LOG_ENTRIES } from "@injinary-wallet/shared";
 
 const STORAGE_KEYS = {
 	entries: "usage_entries",

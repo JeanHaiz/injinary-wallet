@@ -9,8 +9,8 @@ import type {
 	ConnectParams,
 	PermissionSummary,
 	ProviderId,
-} from "@ai-wallet/shared";
-import { DEFAULT_RATE_LIMIT } from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
+import { DEFAULT_RATE_LIMIT } from "@injinary-wallet/shared";
 
 const STORAGE_KEY = "app_permissions";
 

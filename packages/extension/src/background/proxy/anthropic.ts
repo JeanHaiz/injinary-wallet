@@ -7,7 +7,7 @@ import type {
 	EmbedResponse,
 	ModelInfo,
 	StreamChunk,
-} from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
 import { ProviderProxy } from "./base.js";
 
 const DEFAULT_BASE_URL = "https://api.anthropic.com";

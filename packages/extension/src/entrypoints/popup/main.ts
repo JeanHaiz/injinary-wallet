@@ -12,6 +12,26 @@ const app = document.getElementById("app")!;
 
 type Screen = "setup" | "unlock" | "dashboard" | "keys" | "approval";
 
+const VIEW_STATE_KEY = "popup_view_state";
+
+interface ViewState {
+	screen: Screen;
+	provider?: string;
+}
+
+function saveViewState(state: ViewState) {
+	chrome.storage.session.set({ [VIEW_STATE_KEY]: state });
+}
+
+function clearViewState() {
+	chrome.storage.session.remove(VIEW_STATE_KEY);
+}
+
+async function getViewState(): Promise<ViewState | null> {
+	const result = await chrome.storage.session.get(VIEW_STATE_KEY);
+	return result[VIEW_STATE_KEY] ?? null;
+}
+
 async function navigate(screen?: Screen) {
 	if (!screen) {
 		// Auto-detect which screen to show
@@ -25,9 +45,22 @@ async function navigate(screen?: Screen) {
 			} else {
 				// If there's a pending approval, go straight to it
 				const pending = await approval.getPending();
-				screen = pending.length > 0 ? "approval" : "dashboard";
+				if (pending.length > 0) {
+					screen = "approval";
+				} else {
+					// Restore last view if available
+					const saved = await getViewState();
+					screen = saved?.screen ?? "dashboard";
+				}
 			}
 		}
+	}
+
+	// Persist restorable screens
+	if (screen === "keys" || screen === "dashboard") {
+		saveViewState({ screen });
+	} else if (screen === "setup" || screen === "unlock") {
+		clearViewState();
 	}
 
 	switch (screen) {

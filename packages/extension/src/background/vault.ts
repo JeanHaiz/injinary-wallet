@@ -2,8 +2,8 @@
 // Manages encrypted storage of API keys. Keys are encrypted at rest in
 // chrome.storage.local and only decrypted in-memory when the wallet is unlocked.
 
-import type { EncryptedBlob, KeyVault, ProviderKey, WalletMetadata } from "@ai-wallet/shared";
-import { DEFAULT_LOCK_TIMEOUT_MINUTES } from "@ai-wallet/shared";
+import type { EncryptedBlob, KeyVault, ProviderKey, WalletMetadata } from "@injinary-wallet/shared";
+import { DEFAULT_LOCK_TIMEOUT_MINUTES } from "@injinary-wallet/shared";
 import {
 	decryptWithKey,
 	deriveKey,

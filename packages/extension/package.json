@@ -1,5 +1,5 @@
 {
-	"name": "@ai-wallet/extension",
+	"name": "@injinary-wallet/extension",
 	"version": "0.0.1",
 	"private": true,
 	"type": "module",
@@ -10,7 +10,7 @@
 		"test": "vitest run"
 	},
 	"dependencies": {
-		"@ai-wallet/shared": "workspace:*"
+		"@injinary-wallet/shared": "workspace:*"
 	},
 	"devDependencies": {
 		"chrome-types": "^0.1.425",

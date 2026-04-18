@@ -4,23 +4,36 @@ import { vault } from "../api.js";
 
 export function renderSetup(container: HTMLElement, onComplete: () => void) {
 	container.innerHTML = `
-		<h1>Welcome to AI Wallet</h1>
-		<p class="subtitle">Create a password to encrypt your API keys. There is no recovery — choose something you'll remember.</p>
+		<div class="screen-enter" style="padding-top:12px;">
+			<img src="/logo.png" alt="Injinary" class="injinary-logo" />
+			<div style="text-align:center; margin-bottom:24px;">
+				<h1 class="brand-name">Create your vault</h1>
+				<p class="subtitle" style="margin-top:6px; margin-bottom:0;">
+					Your password encrypts all API keys locally.<br>
+					There is no recovery — choose wisely.
+				</p>
+			</div>
 
-		<div id="setup-error" class="alert alert-error" style="display:none"></div>
+			<div id="setup-error" class="alert alert-error" style="display:none"></div>
 
-		<div class="input-group">
-			<label for="pw1">Password</label>
-			<input type="password" id="pw1" placeholder="Enter a strong password" autocomplete="new-password" />
+			<div class="input-group">
+				<label for="pw1">Password</label>
+				<input type="password" id="pw1" placeholder="At least 6 characters" autocomplete="new-password" />
+			</div>
+			<div class="input-group">
+				<label for="pw2">Confirm</label>
+				<input type="password" id="pw2" placeholder="Re-enter password" autocomplete="new-password" />
+			</div>
+
+			<button id="setup-btn" class="btn btn-primary" style="margin-top:4px;">
+				<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+				Create Wallet
+			</button>
+
+			<p class="muted" style="margin-top:14px; text-align:center;">
+				Keys are encrypted with AES-256-GCM and never leave your device.
+			</p>
 		</div>
-		<div class="input-group">
-			<label for="pw2">Confirm password</label>
-			<input type="password" id="pw2" placeholder="Re-enter your password" autocomplete="new-password" />
-		</div>
-		<button id="setup-btn" class="btn btn-primary">Create Wallet</button>
-		<p class="muted" style="margin-top:12px; text-align:center;">
-			Your password never leaves this device.
-		</p>
 	`;
 
 	const pw1 = container.querySelector<HTMLInputElement>("#pw1")!;
@@ -30,12 +43,11 @@ export function renderSetup(container: HTMLElement, onComplete: () => void) {
 
 	function showError(msg: string) {
 		errEl.textContent = msg;
-		errEl.style.display = "block";
+		errEl.style.display = "flex";
 	}
 
 	btn.addEventListener("click", async () => {
 		errEl.style.display = "none";
-
 		const password = pw1.value;
 		const confirm = pw2.value;
 
@@ -49,7 +61,7 @@ export function renderSetup(container: HTMLElement, onComplete: () => void) {
 		}
 
 		btn.disabled = true;
-		btn.textContent = "Creating...";
+		btn.innerHTML = `<span style="animation:pulse 1s ease-in-out infinite;">Creating vault...</span>`;
 
 		try {
 			await vault.initialize(password);
@@ -61,10 +73,8 @@ export function renderSetup(container: HTMLElement, onComplete: () => void) {
 		}
 	});
 
-	// Submit on Enter
 	pw2.addEventListener("keydown", (e) => {
 		if (e.key === "Enter") btn.click();
 	});
-
 	pw1.focus();
 }

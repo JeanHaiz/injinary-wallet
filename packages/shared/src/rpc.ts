@@ -2,8 +2,8 @@
 // Modeled after EIP-1193 (Ethereum Provider), adapted for AI services.
 // All messages between the SDK and extension follow this shape.
 
-export const AI_WALLET_RPC = "AI_WALLET_RPC" as const;
-export const AI_WALLET_RPC_RESPONSE = "AI_WALLET_RPC_RESPONSE" as const;
+export const INJINARY_WALLET_RPC = "INJINARY_WALLET_RPC" as const;
+export const INJINARY_WALLET_RPC_RESPONSE = "INJINARY_WALLET_RPC_RESPONSE" as const;
 
 /** RPC methods — namespaced to allow future extension (e.g. storage_*) */
 export type RpcMethod =
@@ -23,7 +23,7 @@ export type RpcMethod =
 
 /** Message sent from SDK (page) → content script → service worker */
 export interface RpcRequest<P = unknown> {
-	type: typeof AI_WALLET_RPC;
+	type: typeof INJINARY_WALLET_RPC;
 	id: string;
 	method: RpcMethod;
 	params: P;
@@ -31,7 +31,7 @@ export interface RpcRequest<P = unknown> {
 
 /** Message sent from service worker → content script → SDK (page) */
 export interface RpcResponse<R = unknown> {
-	type: typeof AI_WALLET_RPC_RESPONSE;
+	type: typeof INJINARY_WALLET_RPC_RESPONSE;
 	id: string;
 	result?: R;
 	error?: RpcError;
@@ -52,7 +52,7 @@ export enum RpcErrorCode {
 	InvalidParams = -32602,
 	InternalError = -32603,
 
-	// AI Wallet specific
+	// Injinary Wallet specific
 	WalletLocked = 4001,
 	PermissionDenied = 4002,
 	BudgetExceeded = 4003,

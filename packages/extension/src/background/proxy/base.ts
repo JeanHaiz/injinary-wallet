@@ -10,7 +10,7 @@ import type {
 	ModelInfo,
 	ProviderId,
 	StreamChunk,
-} from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
 
 export abstract class ProviderProxy {
 	abstract readonly id: ProviderId;

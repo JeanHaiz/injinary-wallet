@@ -6,7 +6,7 @@ import {
 	type InternalMethod,
 	type InternalRequest,
 	type InternalResponse,
-} from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
 
 export async function send<R = unknown>(method: InternalMethod, params?: unknown): Promise<R> {
 	const message: InternalRequest = {

@@ -1,11 +1,11 @@
-import type { ConnectParams, PermissionSummary, WalletInfo } from "@ai-wallet/shared";
+import type { ConnectParams, PermissionSummary, WalletInfo } from "@injinary-wallet/shared";
 import { Connection } from "./connection.js";
 import { detect, isAvailable } from "./detect.js";
 import { sendRpc } from "./transport.js";
 
 export { Connection } from "./connection.js";
 export { detect, isAvailable } from "./detect.js";
-export { AIWalletError } from "./transport.js";
+export { InjinaryWalletError } from "./transport.js";
 
 // Re-export shared types that app developers need
 export type {
@@ -21,28 +21,28 @@ export type {
 	StreamChunk,
 	TokenUsage,
 	WalletInfo,
-} from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
 
 /**
- * The AI Wallet interface — injected as `window.aiWallet` by the extension.
+ * The Injinary Wallet interface — injected as `window.injinaryWallet` by the extension.
  *
  * Usage:
  * ```ts
- * const wallet = window.aiWallet;
+ * const wallet = window.injinaryWallet;
  * if (wallet) {
  *   const conn = await wallet.connect({ appName: "My App" });
  *   const res = await conn.complete({ messages: [{ role: "user", content: "Hi" }] });
  * }
  * ```
  */
-export interface AIWallet {
+export interface InjinaryWallet {
 	detect(): Promise<WalletInfo | null>;
 	isAvailable(): Promise<boolean>;
 	connect(params: ConnectParams): Promise<Connection>;
 }
 
 /** Create the wallet interface object */
-export function createAIWallet(): AIWallet {
+export function createInjinaryWallet(): InjinaryWallet {
 	return {
 		detect,
 		isAvailable,
@@ -56,9 +56,9 @@ export function createAIWallet(): AIWallet {
 	};
 }
 
-// Global type augmentation for window.aiWallet
+// Global type augmentation for window.injinaryWallet
 declare global {
 	interface Window {
-		aiWallet?: AIWallet;
+		injinaryWallet?: InjinaryWallet;
 	}
 }

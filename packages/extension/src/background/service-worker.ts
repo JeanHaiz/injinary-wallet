@@ -1,5 +1,5 @@
 // ─── Service Worker ──────────────────────────────────────────────────────────
-// The trusted core of the AI Wallet. Routes messages from:
+// The trusted core of the Injinary Wallet. Routes messages from:
 // 1. Content scripts (external RPC from web apps via SDK)
 // 2. Popup/extension pages (internal UI operations)
 
@@ -24,8 +24,8 @@ import {
 	type VaultUnlockParams,
 	WALLET_CAPABILITIES,
 	WALLET_VERSION,
-} from "@ai-wallet/shared";
-import { RpcErrorCode as ErrorCode } from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
+import { RpcErrorCode as ErrorCode } from "@injinary-wallet/shared";
 import {
 	checkBudget,
 	checkRateLimit,
@@ -79,7 +79,7 @@ const pendingApprovals = new Map<
 chrome.runtime.onMessage.addListener(
 	(message: { type: string }, sender, sendResponse: (response: unknown) => void) => {
 		// Route to the right handler based on message type
-		if (message.type === "AI_WALLET_INTERNAL") {
+		if (message.type === "INJINARY_WALLET_INTERNAL") {
 			// From content script (web app RPC)
 			return handleContentScriptMessage(
 				message as {
@@ -540,6 +540,10 @@ function getDefaultModel(provider: string): string {
 			return "claude-sonnet-4-20250514";
 		case "google":
 			return "gemini-2.0-flash";
+		case "mistral":
+			return "mistral-large-latest";
+		case "custom":
+			return "default";
 		default:
 			return "unknown";
 	}

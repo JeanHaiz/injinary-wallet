@@ -8,8 +8,8 @@ import type {
 	PermissionSummary,
 	StreamChunk,
 	UsageEntry,
-} from "@ai-wallet/shared";
-import { AIWalletError, sendRpc, sendStreamRpc } from "./transport.js";
+} from "@injinary-wallet/shared";
+import { InjinaryWalletError, sendRpc, sendStreamRpc } from "./transport.js";
 
 export type ConnectionEventMap = {
 	budgetWarning: { remaining: number };
@@ -20,7 +20,7 @@ export type ConnectionEventMap = {
 type EventHandler<T> = (data: T) => void;
 
 /**
- * A connection to the AI Wallet, obtained after the user approves access.
+ * A connection to the Injinary Wallet, obtained after the user approves access.
  * All AI operations go through this object.
  */
 export class Connection {
@@ -114,7 +114,7 @@ export class Connection {
 
 	private assertConnected(): void {
 		if (!this._connected) {
-			throw new AIWalletError(4200, "Not connected to AI Wallet");
+			throw new InjinaryWalletError(4200, "Not connected to Injinary Wallet");
 		}
 	}
 

@@ -1,5 +1,5 @@
 // ─── Content Script: Injector ─────────────────────────────────────────────────
-// Runs in the MAIN world (same as page scripts). Injects the `window.aiWallet`
+// Runs in the MAIN world (same as page scripts). Injects the `window.injinaryWallet`
 // global that web apps use to detect and interact with the wallet.
 //
 // This runs at document_start — before any page scripts — and uses
@@ -7,14 +7,14 @@
 // from overwriting the wallet object.
 
 import {
-	AI_WALLET_RPC,
-	AI_WALLET_RPC_RESPONSE,
+	INJINARY_WALLET_RPC,
+	INJINARY_WALLET_RPC_RESPONSE,
 	type RpcMethod,
 	type RpcRequest,
 	type RpcResponse,
-} from "@ai-wallet/shared";
+} from "@injinary-wallet/shared";
 
-interface AIWalletGlobal {
+interface InjinaryWalletGlobal {
 	detect(): Promise<{ version: string; capabilities: readonly string[] } | null>;
 	isAvailable(): Promise<boolean>;
 	connect(params: {
@@ -32,7 +32,7 @@ function sendRpc<R = unknown>(method: RpcMethod, params?: unknown, timeoutMs = 3
 	return new Promise<R>((resolve, reject) => {
 		const id = `aiw_inj_${Date.now()}_${++counter}`;
 		const request: RpcRequest = {
-			type: AI_WALLET_RPC,
+			type: INJINARY_WALLET_RPC,
 			id,
 			method,
 			params,
@@ -40,13 +40,13 @@ function sendRpc<R = unknown>(method: RpcMethod, params?: unknown, timeoutMs = 3
 
 		const timer = setTimeout(() => {
 			cleanup();
-			reject(new Error(`AI Wallet request timed out (${method})`));
+			reject(new Error(`Injinary Wallet request timed out (${method})`));
 		}, timeoutMs);
 
 		function handler(event: MessageEvent) {
 			if (event.source !== window) return;
 			const data = event.data as RpcResponse<R>;
-			if (data?.type !== AI_WALLET_RPC_RESPONSE || data.id !== id) return;
+			if (data?.type !== INJINARY_WALLET_RPC_RESPONSE || data.id !== id) return;
 
 			cleanup();
 			if (data.error) {
@@ -68,7 +68,7 @@ function sendRpc<R = unknown>(method: RpcMethod, params?: unknown, timeoutMs = 3
 	});
 }
 
-const wallet: AIWalletGlobal = {
+const wallet: InjinaryWalletGlobal = {
 	async detect() {
 		try {
 			return await sendRpc("ai_detectWallet", undefined, 500);
@@ -87,7 +87,7 @@ const wallet: AIWalletGlobal = {
 };
 
 // Make it non-overwritable to prevent SDK impersonation
-Object.defineProperty(window, "aiWallet", {
+Object.defineProperty(window, "injinaryWallet", {
 	value: Object.freeze(wallet),
 	writable: false,
 	configurable: false,

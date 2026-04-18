@@ -1,4 +1,4 @@
-// ─── OpenAI Provider Proxy ───────────────────────────────────────────────────
+// ─── Mistral Provider Proxy ──────────────────────────────────────────────────
 
 import type {
 	CompletionRequest,
@@ -10,11 +10,11 @@ import type {
 } from "@injinary-wallet/shared";
 import { ProviderProxy } from "./base.js";
 
-const DEFAULT_BASE_URL = "https://api.openai.com/v1";
+const DEFAULT_BASE_URL = "https://api.mistral.ai/v1";
 
-export class OpenAIProxy extends ProviderProxy {
-	readonly id = "openai" as const;
-	readonly name = "OpenAI";
+export class MistralProxy extends ProviderProxy {
+	readonly id = "mistral" as const;
+	readonly name = "Mistral";
 
 	async complete(
 		apiKey: string,
@@ -22,7 +22,7 @@ export class OpenAIProxy extends ProviderProxy {
 		baseUrl?: string,
 	): Promise<CompletionResponse> {
 		const url = `${baseUrl ?? DEFAULT_BASE_URL}/chat/completions`;
-		const model = request.model ?? "gpt-4o";
+		const model = request.model ?? "mistral-large-latest";
 
 		const response = await fetch(url, {
 			method: "POST",
@@ -41,7 +41,7 @@ export class OpenAIProxy extends ProviderProxy {
 
 		if (!response.ok) {
 			const error = await response.text();
-			throw new Error(`OpenAI API error (${response.status}): ${error}`);
+			throw new Error(`Mistral API error (${response.status}): ${error}`);
 		}
 
 		const data = await response.json();
@@ -49,14 +49,14 @@ export class OpenAIProxy extends ProviderProxy {
 
 		return {
 			id: data.id,
-			provider: "openai",
+			provider: "mistral",
 			model: data.model,
 			content: choice?.message?.content ?? "",
 			usage: {
 				promptTokens: data.usage?.prompt_tokens ?? 0,
 				completionTokens: data.usage?.completion_tokens ?? 0,
 				totalTokens: data.usage?.total_tokens ?? 0,
-				estimatedCostCents: 0, // Calculated by the caller using pricing tables
+				estimatedCostCents: 0,
 			},
 			finishReason: normalizeFinishReason(choice?.finish_reason),
 		};
@@ -69,7 +69,7 @@ export class OpenAIProxy extends ProviderProxy {
 		baseUrl?: string,
 	): Promise<void> {
 		const url = `${baseUrl ?? DEFAULT_BASE_URL}/chat/completions`;
-		const model = request.model ?? "gpt-4o";
+		const model = request.model ?? "mistral-large-latest";
 
 		const response = await fetch(url, {
 			method: "POST",
@@ -90,7 +90,7 @@ export class OpenAIProxy extends ProviderProxy {
 
 		if (!response.ok) {
 			const error = await response.text();
-			throw new Error(`OpenAI API error (${response.status}): ${error}`);
+			throw new Error(`Mistral API error (${response.status}): ${error}`);
 		}
 
 		const reader = response.body!.getReader();
@@ -145,7 +145,7 @@ export class OpenAIProxy extends ProviderProxy {
 
 	async embed(apiKey: string, request: EmbedRequest, baseUrl?: string): Promise<EmbedResponse> {
 		const url = `${baseUrl ?? DEFAULT_BASE_URL}/embeddings`;
-		const model = request.model ?? "text-embedding-3-small";
+		const model = request.model ?? "mistral-embed";
 
 		const response = await fetch(url, {
 			method: "POST",
@@ -155,19 +155,19 @@ export class OpenAIProxy extends ProviderProxy {
 			},
 			body: JSON.stringify({
 				model,
-				input: request.input,
+				input: Array.isArray(request.input) ? request.input : [request.input],
 			}),
 		});
 
 		if (!response.ok) {
 			const error = await response.text();
-			throw new Error(`OpenAI API error (${response.status}): ${error}`);
+			throw new Error(`Mistral API error (${response.status}): ${error}`);
 		}
 
 		const data = await response.json();
 
 		return {
-			provider: "openai",
+			provider: "mistral",
 			model: data.model,
 			embeddings: data.data.map((d: { embedding: number[] }) => d.embedding),
 			usage: {
@@ -178,32 +178,39 @@ export class OpenAIProxy extends ProviderProxy {
 	}
 
 	async listModels(_apiKey: string, _baseUrl?: string): Promise<ModelInfo[]> {
-		// Return a curated list rather than hitting /v1/models (which returns hundreds)
 		return [
 			{
-				id: "gpt-4o",
-				provider: "openai",
-				name: "GPT-4o",
+				id: "mistral-large-latest",
+				provider: "mistral",
+				name: "Mistral Large",
 				capabilities: ["chat"],
 				contextWindow: 128_000,
 			},
 			{
-				id: "gpt-4o-mini",
-				provider: "openai",
-				name: "GPT-4o Mini",
+				id: "mistral-medium-latest",
+				provider: "mistral",
+				name: "Mistral Medium",
 				capabilities: ["chat"],
 				contextWindow: 128_000,
 			},
 			{
-				id: "text-embedding-3-small",
-				provider: "openai",
-				name: "Embedding 3 Small",
-				capabilities: ["embed"],
+				id: "mistral-small-latest",
+				provider: "mistral",
+				name: "Mistral Small",
+				capabilities: ["chat"],
+				contextWindow: 128_000,
 			},
 			{
-				id: "text-embedding-3-large",
-				provider: "openai",
-				name: "Embedding 3 Large",
+				id: "codestral-latest",
+				provider: "mistral",
+				name: "Codestral",
+				capabilities: ["chat"],
+				contextWindow: 256_000,
+			},
+			{
+				id: "mistral-embed",
+				provider: "mistral",
+				name: "Mistral Embed",
 				capabilities: ["embed"],
 			},
 		];

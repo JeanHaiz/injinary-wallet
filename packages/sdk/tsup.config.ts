@@ -5,6 +5,6 @@ export default defineConfig({
 	format: ["esm", "cjs"],
 	dts: true,
 	clean: true,
-	// Inline @ai-wallet/shared — the SDK must be zero-dependency at runtime
-	noExternal: ["@ai-wallet/shared"],
+	// Inline @injinary-wallet/shared — the SDK must be zero-dependency at runtime
+	noExternal: ["@injinary-wallet/shared"],
 });
