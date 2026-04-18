@@ -37,6 +37,7 @@ export class AnthropicProxy extends ProviderProxy {
 				"Content-Type": "application/json",
 				"x-api-key": apiKey,
 				"anthropic-version": API_VERSION,
+				"anthropic-dangerous-direct-browser-access": "true",
 			},
 			body: JSON.stringify({
 				model,
@@ -91,6 +92,7 @@ export class AnthropicProxy extends ProviderProxy {
 				"Content-Type": "application/json",
 				"x-api-key": apiKey,
 				"anthropic-version": API_VERSION,
+				"anthropic-dangerous-direct-browser-access": "true",
 			},
 			body: JSON.stringify({
 				model,

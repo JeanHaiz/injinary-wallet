@@ -17,12 +17,8 @@
 			padding: 20px; margin-bottom: 16px;
 		}
 		.card h2 { font-size: 15px; color: #a1a1aa; margin-bottom: 12px; font-weight: 500; }
-		.status {
-			display: flex; align-items: center; gap: 8px; font-size: 14px;
-		}
-		.dot {
-			width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-		}
+		.status { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+		.dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
 		.dot.green { background: #22c55e; }
 		.dot.red { background: #ef4444; }
 		.dot.yellow { background: #eab308; }
@@ -43,11 +39,16 @@
 		.log-ok { color: #4ade80; }
 		.log-err { color: #f87171; }
 		.log-data { color: #c084fc; }
+		.response-box {
+			background: #0f0f12; border: 1px solid #27272a; border-radius: 8px;
+			padding: 14px; margin-top: 12px; font-size: 14px; line-height: 1.6;
+		}
+		.meta { color: #71717a; font-size: 12px; margin-top: 8px; }
 	</style>
 </head>
 <body>
 	<h1>AI Wallet Test App</h1>
-	<p class="subtitle">A minimal page to verify the browser extension is working</p>
+	<p class="subtitle">End-to-end test: detect wallet, connect, make an AI call</p>
 
 	<div class="card">
 		<h2>1. Wallet Detection</h2>
@@ -55,7 +56,7 @@
 			<span class="dot yellow"></span>
 			<span>Checking...</span>
 		</div>
-		<button id="btn-detect" onclick="runDetect()">Re-check</button>
+		<button id="btn-detect">Re-check</button>
 	</div>
 
 	<div class="card">
@@ -64,12 +65,26 @@
 			<span class="dot red"></span>
 			<span>Not connected</span>
 		</div>
-		<button id="btn-connect" onclick="runConnect()" disabled>Connect to AI Wallet</button>
+		<button id="btn-connect" disabled>Connect to AI Wallet</button>
 	</div>
 
 	<div class="card">
-		<h2>3. Test Completion</h2>
-		<button id="btn-complete" onclick="runComplete()" disabled>Send "Hello!" to AI</button>
+		<h2>3. AI Completion</h2>
+		<div id="model-selector" style="margin-bottom:12px; display:none;">
+			<label style="font-size:12px; color:#a1a1aa; display:block; margin-bottom:4px;">Model</label>
+			<select id="model-select" style="
+				width:100%; padding:10px 12px; background:#0f0f12; border:1px solid #27272a;
+				border-radius:8px; color:#e4e4e7; font-size:14px; cursor:pointer;
+			"></select>
+		</div>
+		<div id="completion-result"></div>
+		<button id="btn-complete" disabled>Send "Say hello in one sentence" to AI</button>
+	</div>
+
+	<div class="card">
+		<h2>4. Budget</h2>
+		<div id="budget-result"><span class="meta">Connect first to see budget</span></div>
+		<button id="btn-budget" disabled>Refresh Budget</button>
 	</div>
 
 	<div class="card">
@@ -88,6 +103,41 @@
 			logEl.scrollTop = logEl.scrollHeight;
 		}
 
+		// ─── RPC Helper ─────────────────────────────────────────
+		// Sends messages using the same postMessage protocol the SDK uses.
+		// The bridge content script picks these up and forwards to the service worker.
+
+		let rpcCounter = 0;
+
+		function rpc(method, params) {
+			return new Promise((resolve, reject) => {
+				const id = `test_${Date.now()}_${++rpcCounter}`;
+
+				function handler(event) {
+					if (event.source !== window) return;
+					if (event.data?.type !== "AI_WALLET_RPC_RESPONSE") return;
+					if (event.data.id !== id) return;
+					window.removeEventListener("message", handler);
+					clearTimeout(timer);
+					if (event.data.error) {
+						const err = new Error(event.data.error.message);
+						err.code = event.data.error.code;
+						reject(err);
+					} else {
+						resolve(event.data.result);
+					}
+				}
+
+				const timer = setTimeout(() => {
+					window.removeEventListener("message", handler);
+					reject(new Error("Request timed out (30s)"));
+				}, 30000);
+
+				window.addEventListener("message", handler);
+				window.postMessage({ type: "AI_WALLET_RPC", id, method, params }, "*");
+			});
+		}
+
 		// ─── Step 1: Detect ──────────────────────────────────────
 
 		async function runDetect() {
@@ -95,7 +145,7 @@
 			log("Checking for window.aiWallet...", "log-info");
 
 			if (!window.aiWallet) {
-				statusEl.innerHTML = `<span class="dot red"></span><span>Not found — extension not installed or not loaded</span>`;
+				statusEl.innerHTML = `<span class="dot red"></span><span>Not found — install the AI Wallet extension</span>`;
 				log("window.aiWallet is undefined", "log-err");
 				return false;
 			}
@@ -105,29 +155,30 @@
 			try {
 				const info = await window.aiWallet.detect();
 				if (info) {
-					statusEl.innerHTML = `<span class="dot green"></span><span>Detected! v${info.version} — capabilities: ${info.capabilities.join(", ")}</span>`;
-					log(`Wallet detected: v${info.version}, capabilities: [${info.capabilities.join(", ")}]`, "log-ok");
+					statusEl.innerHTML = `<span class="dot green"></span><span>Detected! v${info.version} — ${info.capabilities.join(", ")}</span>`;
+					log(`Wallet v${info.version}, capabilities: [${info.capabilities.join(", ")}]`, "log-ok");
 					document.getElementById("btn-connect").disabled = false;
 					return true;
 				} else {
-					statusEl.innerHTML = `<span class="dot red"></span><span>detect() returned null — extension may not be responding</span>`;
+					statusEl.innerHTML = `<span class="dot red"></span><span>detect() returned null</span>`;
 					log("detect() returned null", "log-err");
 					return false;
 				}
 			} catch (err) {
 				statusEl.innerHTML = `<span class="dot red"></span><span>Error: ${err.message}</span>`;
-				log(`detect() threw: ${err.message}`, "log-err");
+				log(`detect() error: ${err.message}`, "log-err");
 				return false;
 			}
 		}
 
 		// ─── Step 2: Connect ─────────────────────────────────────
 
-		let connection = null;
-
 		async function runConnect() {
 			const statusEl = document.getElementById("connect-status");
-			log("Requesting access with appName: 'AI Wallet Test App'...", "log-info");
+			const btn = document.getElementById("btn-connect");
+			btn.disabled = true;
+			btn.textContent = "Waiting for approval...";
+			log("Requesting access...", "log-info");
 
 			try {
 				const result = await window.aiWallet.connect({
@@ -136,40 +187,150 @@
 					requestedBudget: { amount: 100, period: "daily" },
 				});
 
-				connection = result;
 				statusEl.innerHTML = `<span class="dot green"></span><span>Connected!</span>`;
-				log(`Connected! Permissions: ${JSON.stringify(result, null, 2)}`, "log-ok");
-				document.getElementById("btn-complete").disabled = false;
+				log(`Connected! Providers: ${result.allowedProviders?.join(", ") || "all"}`, "log-ok");
+				log(`Budget: ${result.budgetRemaining}¢ / ${result.budgetLimit}¢ ${result.budgetPeriod}`, "log-ok");
+
+				document.getElementById("btn-budget").disabled = false;
+				btn.textContent = "Connected";
+
+				// Fetch available models and populate the selector
+				await loadModels();
+
+				// Auto-refresh budget
+				runBudget();
 			} catch (err) {
 				statusEl.innerHTML = `<span class="dot red"></span><span>${err.message}</span>`;
-				log(`Connect failed: ${err.message} (code: ${err.code})`, "log-err");
-				if (err.message.includes("not yet implemented")) {
-					log("This is expected — the approval popup UI hasn't been built yet.", "log-info");
-					log("To test further, grant permissions manually via the extension's storage.", "log-info");
+				log(`Connect failed (code ${err.code}): ${err.message}`, "log-err");
+				btn.disabled = false;
+				btn.textContent = "Connect to AI Wallet";
+			}
+		}
+
+		// ─── Models ─────────────────────────────────────────────��
+
+		async function loadModels() {
+			const selectorEl = document.getElementById("model-selector");
+			const selectEl = document.getElementById("model-select");
+
+			try {
+				const models = await rpc("ai_listModels");
+				const chatModels = models.filter(m => m.capabilities.includes("chat"));
+
+				if (chatModels.length === 0) {
+					log("No chat models available — check your keys and permissions", "log-err");
+					return;
 				}
+
+				selectEl.innerHTML = chatModels
+					.map(m => `<option value="${m.provider}/${m.id}">${m.name} (${m.provider})</option>`)
+					.join("");
+
+				selectorEl.style.display = "block";
+				document.getElementById("btn-complete").disabled = false;
+				log(`${chatModels.length} model(s) available: ${chatModels.map(m => m.id).join(", ")}`, "log-ok");
+			} catch (err) {
+				log(`Failed to load models: ${err.message}`, "log-err");
+				// Still allow completion without model selection (wallet picks default)
+				document.getElementById("btn-complete").disabled = false;
 			}
 		}
 
 		// ─── Step 3: Completion ──────────────────────────────────
 
 		async function runComplete() {
-			log("Sending completion request...", "log-info");
+			const resultEl = document.getElementById("completion-result");
+			const btn = document.getElementById("btn-complete");
+			const selectEl = document.getElementById("model-select");
+			btn.disabled = true;
+			btn.textContent = "Sending...";
+			resultEl.innerHTML = "";
+
+			// Parse selected model
+			const selected = selectEl.value; // "provider/model-id" or empty
+			const params = {
+				messages: [{ role: "user", content: "Say hello in one sentence." }],
+			};
+			if (selected) {
+				const [provider, ...modelParts] = selected.split("/");
+				params.provider = provider;
+				params.model = modelParts.join("/");
+			}
+
+			log(`Sending ai_complete → ${selected || "wallet default"}...`, "log-info");
 
 			try {
-				// This uses the SDK's postMessage protocol directly since
-				// the full Connection class needs the SDK npm package.
-				// For this test page we go through window.aiWallet which
-				// only exposes detect/connect. A real app would use the SDK.
-				log("Note: full completion requires the @ai-wallet/sdk package.", "log-info");
-				log("The connect + detect flow above proves the extension<->page bridge works.", "log-data");
+				const response = await rpc("ai_complete", params);
+
+				log(`Response from ${response.provider}/${response.model}`, "log-ok");
+				log(`Tokens: ${response.usage.promptTokens} in + ${response.usage.completionTokens} out = ${response.usage.totalTokens} total`, "log-data");
+				log(`Estimated cost: ${response.usage.estimatedCostCents}¢`, "log-data");
+
+				resultEl.innerHTML = `
+					<div class="response-box">${escapeHtml(response.content)}</div>
+					<div class="meta">
+						${response.provider} / ${response.model}
+						&middot; ${response.usage.totalTokens} tokens
+						&middot; ~${response.usage.estimatedCostCents}¢
+						&middot; finish: ${response.finishReason}
+					</div>
+				`;
+
+				// Refresh budget after the call
+				runBudget();
 			} catch (err) {
-				log(`Completion failed: ${err.message}`, "log-err");
+				log(`Completion failed (code ${err.code}): ${err.message}`, "log-err");
+				resultEl.innerHTML = `<div class="response-box" style="color:#f87171;">Error: ${escapeHtml(err.message)}</div>`;
+			}
+
+			btn.disabled = false;
+			btn.textContent = 'Send "Say hello in one sentence" to AI';
+		}
+
+		// ─── Step 4: Budget ──────────────────────────────────────
+
+		async function runBudget() {
+			const resultEl = document.getElementById("budget-result");
+			log("Fetching budget...", "log-info");
+
+			try {
+				const budget = await rpc("ai_getBudget");
+				log(`Budget: ${budget.spent}¢ spent / ${budget.limit}¢ limit (${budget.period})`, "log-ok");
+
+				const pct = budget.limit > 0 ? Math.round((budget.spent / budget.limit) * 100) : 0;
+				resultEl.innerHTML = `
+					<div style="margin-bottom:8px;">
+						<span style="font-size:20px; font-weight:600;">${budget.remaining}¢</span>
+						<span class="meta"> remaining of ${budget.limit}¢ ${budget.period}</span>
+					</div>
+					<div style="background:#27272a; border-radius:4px; height:8px; overflow:hidden;">
+						<div style="background:${pct > 80 ? '#ef4444' : '#3b82f6'}; height:100%; width:${pct}%; transition:width 0.3s;"></div>
+					</div>
+					<div class="meta" style="margin-top:4px;">${budget.spent}¢ spent (${pct}%)</div>
+				`;
+			} catch (err) {
+				log(`Budget fetch failed: ${err.message}`, "log-err");
+				resultEl.innerHTML = `<span class="meta" style="color:#f87171;">${escapeHtml(err.message)}</span>`;
 			}
 		}
 
+		// ─── Helpers ─────────────────────────────────────────────
+
+		function escapeHtml(s) {
+			const div = document.createElement("div");
+			div.textContent = s;
+			return div.innerHTML;
+		}
+
+		// ─── Wire up buttons ─────────────────────────────────────
+
+		document.getElementById("btn-detect").addEventListener("click", runDetect);
+		document.getElementById("btn-connect").addEventListener("click", runConnect);
+		document.getElementById("btn-complete").addEventListener("click", runComplete);
+		document.getElementById("btn-budget").addEventListener("click", runBudget);
+
 		// ─── Auto-detect on load ─────────────────────────────────
 
-		// Wait a tick for the content script to inject window.aiWallet
 		setTimeout(() => runDetect(), 200);
 	</script>
 </body>

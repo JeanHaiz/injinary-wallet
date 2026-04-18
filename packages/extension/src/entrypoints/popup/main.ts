@@ -1,4 +1,4 @@
-import { vault } from "../../popup/api.js";
+import { approval, vault } from "../../popup/api.js";
 import { renderApproval } from "../../popup/screens/approval.js";
 import { renderDashboard } from "../../popup/screens/dashboard.js";
 import { renderKeys } from "../../popup/screens/keys.js";
@@ -20,7 +20,13 @@ async function navigate(screen?: Screen) {
 			screen = "setup";
 		} else {
 			const unlocked = await vault.isUnlocked();
-			screen = unlocked ? "dashboard" : "unlock";
+			if (!unlocked) {
+				screen = "unlock";
+			} else {
+				// If there's a pending approval, go straight to it
+				const pending = await approval.getPending();
+				screen = pending.length > 0 ? "approval" : "dashboard";
+			}
 		}
 	}
 
