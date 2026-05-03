@@ -1,6 +1,12 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { AppPermission } from "@injinary-wallet/shared";
-import { checkBudget, checkRateLimit, deductBudget, estimateCostCents, recordRequest } from "./budget.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	checkBudget,
+	checkRateLimit,
+	deductBudget,
+	estimateCostCents,
+	recordRequest,
+} from "./budget.js";
 
 // ─── Mock chrome.storage.local ──────────────────────────────────────────────
 const storage: Record<string, unknown> = {};
@@ -76,7 +82,9 @@ describe("budget security", () => {
 
 	describe("concurrent budget deductions", () => {
 		it("accumulates deductions correctly under sequential calls", async () => {
-			const perm = makePerm({ budget: { amount: 100, period: "daily", spent: 0, periodStart: Date.now() } });
+			const perm = makePerm({
+				budget: { amount: 100, period: "daily", spent: 0, periodStart: Date.now() },
+			});
 			mockGetPermission.mockResolvedValue(perm);
 			storage.app_permissions = { "https://example.com": perm };
 
@@ -92,7 +100,9 @@ describe("budget security", () => {
 		});
 
 		it("all concurrent deductions are reflected in final state", async () => {
-			const perm = makePerm({ budget: { amount: 1000, period: "daily", spent: 0, periodStart: Date.now() } });
+			const perm = makePerm({
+				budget: { amount: 1000, period: "daily", spent: 0, periodStart: Date.now() },
+			});
 			mockGetPermission.mockResolvedValue(perm);
 			storage.app_permissions = { "https://example.com": perm };
 
@@ -185,7 +195,14 @@ describe("budget security", () => {
 		it("total budget period never resets (amount is absolute cap)", async () => {
 			// "total" period means MAX_SAFE_INTEGER as periodEnd — effectively never resets
 			mockGetPermission.mockResolvedValue(
-				makePerm({ budget: { amount: 500, period: "total", spent: 500, periodStart: Date.now() - 365 * 24 * 60 * 60 * 1000 } }),
+				makePerm({
+					budget: {
+						amount: 500,
+						period: "total",
+						spent: 500,
+						periodStart: Date.now() - 365 * 24 * 60 * 60 * 1000,
+					},
+				}),
 			);
 			const result = await checkBudget("https://example.com", 1);
 			expect(result.allowed).toBe(false);

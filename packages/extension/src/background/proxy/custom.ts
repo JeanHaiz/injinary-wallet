@@ -197,14 +197,12 @@ export class CustomProxy extends ProviderProxy {
 			const data = await response.json();
 			const models = data.data ?? data;
 
-			return (Array.isArray(models) ? models : []).map(
-				(m: { id: string; name?: string }) => ({
-					id: m.id,
-					provider: "custom" as const,
-					name: m.name ?? m.id,
-					capabilities: ["chat" as const],
-				}),
-			);
+			return (Array.isArray(models) ? models : []).map((m: { id: string; name?: string }) => ({
+				id: m.id,
+				provider: "custom" as const,
+				name: m.name ?? m.id,
+				capabilities: ["chat" as const],
+			}));
 		} catch {
 			return [];
 		}

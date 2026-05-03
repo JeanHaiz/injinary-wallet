@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Mock chrome.storage.local ──────────────────────────────────────────────
 const storage: Record<string, unknown> = {};
@@ -14,6 +14,7 @@ vi.stubGlobal("chrome", {
 	storage: { local: chromeStorageMock },
 });
 
+import type { AppPermission, ConnectParams } from "@injinary-wallet/shared";
 // Import after mocking chrome
 import {
 	checkPermission,
@@ -24,7 +25,6 @@ import {
 	revokePermission,
 	toSummary,
 } from "./permissions.js";
-import type { AppPermission, ConnectParams } from "@injinary-wallet/shared";
 
 const TEST_ORIGIN = "https://test-app.com";
 

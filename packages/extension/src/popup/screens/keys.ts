@@ -117,7 +117,6 @@ export function renderKeys(container: HTMLElement, onBack: () => void) {
 	const defaultCheck = container.querySelector<HTMLInputElement>("#key-default")!;
 	const addBtn = container.querySelector<HTMLButtonElement>("#add-key-btn")!;
 
-	const formEl = container.querySelector<HTMLElement>("#add-key-form")!;
 	const sectionEl = container.querySelector<HTMLElement>("#add-key-section")!;
 	const showFormBtn = container.querySelector<HTMLButtonElement>("#show-form-btn")!;
 	const hideFormBtn = container.querySelector<HTMLButtonElement>("#hide-form-btn")!;

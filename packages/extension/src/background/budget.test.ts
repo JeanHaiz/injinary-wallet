@@ -1,6 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { AppPermission } from "@injinary-wallet/shared";
-import { checkBudget, checkRateLimit, deductBudget, estimateCostCents, recordRequest } from "./budget.js";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+	checkBudget,
+	checkRateLimit,
+	deductBudget,
+	estimateCostCents,
+	recordRequest,
+} from "./budget.js";
 
 // ─── Mock chrome.storage.local ──────────────────────────────────────────────
 const storage: Record<string, unknown> = {};
@@ -48,14 +54,22 @@ describe("budget", () => {
 
 	describe("checkBudget", () => {
 		it("allows request within budget", async () => {
-			mockGetPermission.mockResolvedValue(makePerm({ budget: { amount: 1000, period: "daily", spent: 200, periodStart: Date.now() } }));
+			mockGetPermission.mockResolvedValue(
+				makePerm({
+					budget: { amount: 1000, period: "daily", spent: 200, periodStart: Date.now() },
+				}),
+			);
 			const result = await checkBudget("https://example.com", 100);
 			expect(result.allowed).toBe(true);
 			expect(result.remaining).toBe(800);
 		});
 
 		it("denies request exceeding budget", async () => {
-			mockGetPermission.mockResolvedValue(makePerm({ budget: { amount: 1000, period: "daily", spent: 950, periodStart: Date.now() } }));
+			mockGetPermission.mockResolvedValue(
+				makePerm({
+					budget: { amount: 1000, period: "daily", spent: 950, periodStart: Date.now() },
+				}),
+			);
 			const result = await checkBudget("https://example.com", 100);
 			expect(result.allowed).toBe(false);
 			expect(result.reason).toContain("Budget exceeded");
@@ -63,13 +77,21 @@ describe("budget", () => {
 		});
 
 		it("denies when budget is exactly exhausted", async () => {
-			mockGetPermission.mockResolvedValue(makePerm({ budget: { amount: 1000, period: "daily", spent: 1000, periodStart: Date.now() } }));
+			mockGetPermission.mockResolvedValue(
+				makePerm({
+					budget: { amount: 1000, period: "daily", spent: 1000, periodStart: Date.now() },
+				}),
+			);
 			const result = await checkBudget("https://example.com", 1);
 			expect(result.allowed).toBe(false);
 		});
 
 		it("allows request that exactly matches remaining budget", async () => {
-			mockGetPermission.mockResolvedValue(makePerm({ budget: { amount: 1000, period: "daily", spent: 900, periodStart: Date.now() } }));
+			mockGetPermission.mockResolvedValue(
+				makePerm({
+					budget: { amount: 1000, period: "daily", spent: 900, periodStart: Date.now() },
+				}),
+			);
 			const result = await checkBudget("https://example.com", 100);
 			expect(result.allowed).toBe(true);
 		});

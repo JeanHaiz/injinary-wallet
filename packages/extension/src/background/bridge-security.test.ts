@@ -1,9 +1,9 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	INJINARY_WALLET_RPC,
 	INJINARY_WALLET_RPC_RESPONSE,
 	type RpcMethod,
 } from "@injinary-wallet/shared";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // ─── Simulate minimal browser globals needed by bridge.ts ────────────────────
 const mockSendMessage = vi.fn();
@@ -156,7 +156,7 @@ describe("bridge security", () => {
 
 			dispatchMessage(makeRpcData({ params: { origin: "https://attacker.com" } }));
 
-			const sentMessage = mockSendMessage.mock.calls[0][0];
+			const sentMessage = mockSendMessage.mock.calls[0]![0];
 			expect(sentMessage.origin).toBe("http://localhost");
 			// params are passed through but origin field is set by bridge, not page
 			expect(sentMessage.params).toEqual({ origin: "https://attacker.com" });

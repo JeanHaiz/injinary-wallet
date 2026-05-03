@@ -48,7 +48,8 @@ export class GoogleProxy extends ProviderProxy {
 
 		const data = await response.json();
 		const candidate = data.candidates?.[0];
-		const text = candidate?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("") ?? "";
+		const text =
+			candidate?.content?.parts?.map((p: { text?: string }) => p.text ?? "").join("") ?? "";
 		const usage = data.usageMetadata;
 
 		return {

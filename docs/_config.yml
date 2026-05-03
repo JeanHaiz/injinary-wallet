@@ -1,0 +1,15 @@
+title: Injinary Wallet
+description: A browser extension that manages AI API keys, budgets, and permissions so open-source web apps can use AI without ever touching your keys.
+url: https://jeanhaiz.github.io
+baseurl: /injinary-wallet
+theme: jekyll-theme-minimal
+show_downloads: false
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default
+
+include:
+  - privacy.md

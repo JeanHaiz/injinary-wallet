@@ -91,13 +91,13 @@ describe("crypto", () => {
 		it("fails to decrypt with tampered ciphertext", async () => {
 			const { ciphertext, salt, iv } = await encrypt("secret", PASSWORD);
 			// Flip a character in the base64 ciphertext
-			const tampered = ciphertext.slice(0, -2) + "AA";
+			const tampered = `${ciphertext.slice(0, -2)}AA`;
 			await expect(decrypt(tampered, salt, iv, PASSWORD)).rejects.toThrow();
 		});
 
 		it("fails to decrypt with tampered IV", async () => {
 			const { ciphertext, salt, iv } = await encrypt("secret", PASSWORD);
-			const tampered = iv.slice(0, -2) + "AA";
+			const tampered = `${iv.slice(0, -2)}AA`;
 			await expect(decrypt(ciphertext, salt, tampered, PASSWORD)).rejects.toThrow();
 		});
 	});

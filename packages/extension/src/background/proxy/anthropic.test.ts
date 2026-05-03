@@ -47,7 +47,7 @@ describe("AnthropicProxy", () => {
 			});
 
 			expect(mockFetch).toHaveBeenCalledOnce();
-			const [url, options] = mockFetch.mock.calls[0];
+			const [url, options] = mockFetch.mock.calls[0]!;
 			expect(url).toBe("https://api.anthropic.com/v1/messages");
 			expect(options.method).toBe("POST");
 			expect(options.headers["x-api-key"]).toBe("sk-ant-key");
@@ -85,7 +85,7 @@ describe("AnthropicProxy", () => {
 				],
 			});
 
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.system).toBe("Be concise.");
 			expect(body.messages).toEqual([
 				{ role: "user", content: "Hello" },
@@ -109,7 +109,7 @@ describe("AnthropicProxy", () => {
 				messages: [{ role: "user", content: "Hi" }],
 			});
 
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.system).toBeUndefined();
 		});
 
@@ -185,7 +185,7 @@ describe("AnthropicProxy", () => {
 			);
 
 			await proxy.complete("key", { messages: [{ role: "user", content: "Hi" }] });
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.model).toBe("claude-sonnet-4-20250514");
 		});
 
@@ -201,7 +201,7 @@ describe("AnthropicProxy", () => {
 			);
 
 			await proxy.complete("key", { messages: [{ role: "user", content: "Hi" }] });
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.max_tokens).toBe(4096);
 		});
 
@@ -216,8 +216,12 @@ describe("AnthropicProxy", () => {
 				}),
 			);
 
-			await proxy.complete("key", { messages: [{ role: "user", content: "Hi" }] }, "https://proxy.example.com");
-			expect(mockFetch.mock.calls[0][0]).toBe("https://proxy.example.com/v1/messages");
+			await proxy.complete(
+				"key",
+				{ messages: [{ role: "user", content: "Hi" }] },
+				"https://proxy.example.com",
+			);
+			expect(mockFetch.mock.calls[0]![0]).toBe("https://proxy.example.com/v1/messages");
 		});
 
 		it("handles missing content blocks gracefully", async () => {
@@ -254,9 +258,9 @@ describe("AnthropicProxy", () => {
 		it("throws on API error with status and body", async () => {
 			mockFetch.mockResolvedValue(textResponse('{"error": {"message": "invalid key"}}', 401));
 
-			await expect(proxy.complete("bad-key", { messages: [{ role: "user", content: "Hi" }] })).rejects.toThrow(
-				"Anthropic API error (401)",
-			);
+			await expect(
+				proxy.complete("bad-key", { messages: [{ role: "user", content: "Hi" }] }),
+			).rejects.toThrow("Anthropic API error (401)");
 		});
 
 		it("passes providerOptions through to the request body", async () => {
@@ -275,7 +279,7 @@ describe("AnthropicProxy", () => {
 				providerOptions: { top_k: 10 },
 			});
 
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.top_k).toBe(10);
 		});
 
@@ -291,7 +295,7 @@ describe("AnthropicProxy", () => {
 			);
 
 			await proxy.complete("key", { messages: [{ role: "user", content: "Hi" }] });
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.temperature).toBeUndefined();
 		});
 
@@ -330,7 +334,7 @@ describe("AnthropicProxy", () => {
 
 			await proxy.completeStream("key", { messages: [{ role: "user", content: "Hi" }] }, () => {});
 
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.stream).toBe(true);
 		});
 

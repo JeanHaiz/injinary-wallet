@@ -50,25 +50,61 @@ packages/
 # Install dependencies
 pnpm install
 
-# Start all packages in dev mode
+# Start all packages in dev mode (extension hot-reloads)
 pnpm dev
-
-# Build everything
-pnpm build
 
 # Run tests
 pnpm test
 
-# Lint
+# Lint and auto-fix
 pnpm lint
+pnpm lint:fix
+
+# Typecheck across packages
+pnpm typecheck
 ```
 
-### Load the extension
+### Load the unpacked extension
 
-1. Run `pnpm -C packages/extension build`
-2. Open `chrome://extensions` in Chrome
-3. Enable "Developer mode"
-4. Click "Load unpacked" and select `packages/extension/.output/chrome-mv3/`
+```bash
+pnpm -C packages/extension build
+```
+
+Then in Chrome: `chrome://extensions` → enable **Developer mode** → **Load unpacked** → select `packages/extension/.output/chrome-mv3/`.
+
+For Firefox / Edge, swap the browser flag and load `.output/<browser>-mv3/` from the matching dev console.
+
+### Useful per-package commands
+
+```bash
+# Run a single package
+pnpm -C packages/extension dev          # WXT dev server (auto-reloads on save)
+pnpm -C packages/sdk build              # Bundle the SDK with tsup
+pnpm -C packages/extension test         # Vitest, just the extension
+
+# E2E (Playwright, runs against the built extension)
+pnpm exec playwright test
+
+# Build for a specific browser
+pnpm -C packages/extension build -b firefox
+pnpm -C packages/extension build -b edge
+```
+
+### Build and package for the stores
+
+```bash
+# Production build → .output/chrome-mv3/
+pnpm -C packages/extension build
+
+# Build + zip for store submission → .output/<name>-<version>-chrome.zip
+pnpm -C packages/extension exec wxt zip
+
+# Upload via the CWS API (requires credentials in .env — see docs/PUBLISHING.md)
+pnpm -C packages/extension exec wxt submit \
+  --chrome-zip packages/extension/.output/<name>-<version>-chrome.zip
+```
+
+The full publishing walkthrough — including OAuth setup for the Chrome Web Store API, Firefox/Edge equivalents, and a pre-flight checklist — lives in [`docs/PUBLISHING.md`](docs/PUBLISHING.md). Copy `.env.example` → `.env` and fill in the credentials before running `wxt submit`.
 
 ## SDK usage
 
@@ -168,6 +204,14 @@ The SDK throws `InjinaryWalletError` with typed error codes:
 - `window.injinaryWallet` is frozen and non-configurable to prevent tampering
 - Budget enforcement happens server-side (in the extension); apps cannot bypass it
 - Master key is held in memory only and expires after a configurable timeout (default: 15 min)
+
+## Privacy
+
+The extension collects nothing — no telemetry, no analytics, no remote servers. Encrypted keys live only in your browser. Full details: [`docs/privacy.md`](docs/privacy.md) (also published at <https://jeanhaiz.github.io/injinary-wallet/privacy.html>).
+
+## Contact
+
+Privacy or security inquiries: **injinary@gmail.com**
 
 ## License
 

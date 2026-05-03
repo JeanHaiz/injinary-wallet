@@ -46,7 +46,7 @@ describe("OpenAIProxy", () => {
 			});
 
 			expect(mockFetch).toHaveBeenCalledOnce();
-			const [url, options] = mockFetch.mock.calls[0];
+			const [url, options] = mockFetch.mock.calls[0]!;
 			expect(url).toBe("https://api.openai.com/v1/chat/completions");
 			expect(options.method).toBe("POST");
 			expect(options.headers.Authorization).toBe("Bearer sk-test-key");
@@ -102,7 +102,7 @@ describe("OpenAIProxy", () => {
 			);
 
 			await proxy.complete("sk-key", { messages: [{ role: "user", content: "Hi" }] });
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.model).toBe("gpt-4o");
 		});
 
@@ -116,8 +116,12 @@ describe("OpenAIProxy", () => {
 				}),
 			);
 
-			await proxy.complete("sk-key", { messages: [{ role: "user", content: "Hi" }] }, "https://custom.api.com/v1");
-			expect(mockFetch.mock.calls[0][0]).toBe("https://custom.api.com/v1/chat/completions");
+			await proxy.complete(
+				"sk-key",
+				{ messages: [{ role: "user", content: "Hi" }] },
+				"https://custom.api.com/v1",
+			);
+			expect(mockFetch.mock.calls[0]![0]).toBe("https://custom.api.com/v1/chat/completions");
 		});
 
 		it("normalizes finish_reason 'length' correctly", async () => {
@@ -130,7 +134,9 @@ describe("OpenAIProxy", () => {
 				}),
 			);
 
-			const result = await proxy.complete("sk-key", { messages: [{ role: "user", content: "Hi" }] });
+			const result = await proxy.complete("sk-key", {
+				messages: [{ role: "user", content: "Hi" }],
+			});
 			expect(result.finishReason).toBe("length");
 		});
 
@@ -144,7 +150,9 @@ describe("OpenAIProxy", () => {
 				}),
 			);
 
-			const result = await proxy.complete("sk-key", { messages: [{ role: "user", content: "Hi" }] });
+			const result = await proxy.complete("sk-key", {
+				messages: [{ role: "user", content: "Hi" }],
+			});
 			expect(result.finishReason).toBe("content_filter");
 		});
 
@@ -158,7 +166,9 @@ describe("OpenAIProxy", () => {
 				}),
 			);
 
-			const result = await proxy.complete("sk-key", { messages: [{ role: "user", content: "Hi" }] });
+			const result = await proxy.complete("sk-key", {
+				messages: [{ role: "user", content: "Hi" }],
+			});
 			expect(result.finishReason).toBe("stop");
 		});
 
@@ -172,7 +182,9 @@ describe("OpenAIProxy", () => {
 				}),
 			);
 
-			const result = await proxy.complete("sk-key", { messages: [{ role: "user", content: "Hi" }] });
+			const result = await proxy.complete("sk-key", {
+				messages: [{ role: "user", content: "Hi" }],
+			});
 			expect(result.content).toBe("");
 		});
 
@@ -185,7 +197,9 @@ describe("OpenAIProxy", () => {
 				}),
 			);
 
-			const result = await proxy.complete("sk-key", { messages: [{ role: "user", content: "Hi" }] });
+			const result = await proxy.complete("sk-key", {
+				messages: [{ role: "user", content: "Hi" }],
+			});
 			expect(result.usage.promptTokens).toBe(0);
 			expect(result.usage.completionTokens).toBe(0);
 			expect(result.usage.totalTokens).toBe(0);
@@ -214,7 +228,7 @@ describe("OpenAIProxy", () => {
 				providerOptions: { top_p: 0.9, frequency_penalty: 0.5 },
 			});
 
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.top_p).toBe(0.9);
 			expect(body.frequency_penalty).toBe(0.5);
 		});
@@ -234,11 +248,13 @@ describe("OpenAIProxy", () => {
 			mockFetch.mockResolvedValue(new Response(stream, { status: 200 }));
 
 			const chunks: unknown[] = [];
-			await proxy.completeStream("sk-key", { messages: [{ role: "user", content: "Hi" }], model: "gpt-4o" }, (chunk) =>
-				chunks.push(chunk),
+			await proxy.completeStream(
+				"sk-key",
+				{ messages: [{ role: "user", content: "Hi" }], model: "gpt-4o" },
+				(chunk) => chunks.push(chunk),
 			);
 
-			const body = JSON.parse(mockFetch.mock.calls[0][1].body);
+			const body = JSON.parse(mockFetch.mock.calls[0]![1].body);
 			expect(body.stream).toBe(true);
 			expect(body.stream_options).toEqual({ include_usage: true });
 		});
@@ -247,8 +263,12 @@ describe("OpenAIProxy", () => {
 			const encoder = new TextEncoder();
 			const stream = new ReadableStream({
 				start(controller) {
-					controller.enqueue(encoder.encode('data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n'));
-					controller.enqueue(encoder.encode('data: {"choices":[{"delta":{"content":" world"}}]}\n\n'));
+					controller.enqueue(
+						encoder.encode('data: {"choices":[{"delta":{"content":"Hello"}}]}\n\n'),
+					);
+					controller.enqueue(
+						encoder.encode('data: {"choices":[{"delta":{"content":" world"}}]}\n\n'),
+					);
 					controller.enqueue(
 						encoder.encode(
 							'data: {"choices":[{"delta":{}}],"usage":{"prompt_tokens":5,"completion_tokens":2,"total_tokens":7}}\n\n',
@@ -262,8 +282,10 @@ describe("OpenAIProxy", () => {
 			mockFetch.mockResolvedValue(new Response(stream, { status: 200 }));
 
 			const chunks: unknown[] = [];
-			await proxy.completeStream("sk-key", { messages: [{ role: "user", content: "Hi" }] }, (chunk) =>
-				chunks.push(chunk),
+			await proxy.completeStream(
+				"sk-key",
+				{ messages: [{ role: "user", content: "Hi" }] },
+				(chunk) => chunks.push(chunk),
 			);
 
 			expect(chunks).toEqual([
@@ -300,7 +322,7 @@ describe("OpenAIProxy", () => {
 
 			await proxy.embed("sk-key", { input: "hello world" });
 
-			const [url, options] = mockFetch.mock.calls[0];
+			const [url, options] = mockFetch.mock.calls[0]!;
 			expect(url).toBe("https://api.openai.com/v1/embeddings");
 			const body = JSON.parse(options.body);
 			expect(body.model).toBe("text-embedding-3-small");
@@ -332,7 +354,9 @@ describe("OpenAIProxy", () => {
 		it("throws on embedding API error", async () => {
 			mockFetch.mockResolvedValue(textResponse("bad request", 400));
 
-			await expect(proxy.embed("bad-key", { input: "hi" })).rejects.toThrow("OpenAI API error (400)");
+			await expect(proxy.embed("bad-key", { input: "hi" })).rejects.toThrow(
+				"OpenAI API error (400)",
+			);
 		});
 	});
 
