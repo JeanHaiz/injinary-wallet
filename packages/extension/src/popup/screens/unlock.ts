@@ -5,10 +5,9 @@ import { vault } from "../api.js";
 export function renderUnlock(container: HTMLElement, onUnlocked: () => void) {
 	container.innerHTML = `
 		<div class="screen-enter" style="padding-top:36px;">
-			<img src="/logo.png" alt="Injinary" class="injinary-logo" />
+			<img src="/logo-wordmark.png" alt="injinary" class="injinary-logo-wordmark" />
 			<div style="text-align:center; margin-bottom:28px;">
-				<h1 style="font-size:18px;" class="brand-name">Injinary Wallet</h1>
-				<p style="color:var(--text-muted); font-size:12.5px; margin-top:4px;">Enter password to unlock</p>
+				<p style="color:var(--text-muted); font-size:12.5px; margin-top:4px; letter-spacing:0.06em;">Enter password to unlock</p>
 			</div>
 
 			<div id="unlock-error" class="alert alert-error" style="display:none"></div>

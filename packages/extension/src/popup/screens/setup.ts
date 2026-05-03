@@ -5,9 +5,9 @@ import { vault } from "../api.js";
 export function renderSetup(container: HTMLElement, onComplete: () => void) {
 	container.innerHTML = `
 		<div class="screen-enter" style="padding-top:12px;">
-			<img src="/logo.png" alt="Injinary" class="injinary-logo" />
+			<img src="/logo-wordmark.png" alt="injinary" class="injinary-logo-wordmark" />
 			<div style="text-align:center; margin-bottom:24px;">
-				<h1 class="brand-name">Create your vault</h1>
+				<h1>Create your vault</h1>
 				<p class="subtitle" style="margin-top:6px; margin-bottom:0;">
 					Your password encrypts all API keys locally.<br>
 					There is no recovery — choose wisely.
