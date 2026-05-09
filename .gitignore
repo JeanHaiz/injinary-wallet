@@ -12,4 +12,4 @@ dist/
 .DS_Store
 Thumbs.db
 .claude
-*.md
+private-*.md
