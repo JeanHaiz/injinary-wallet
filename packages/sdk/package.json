@@ -1,6 +1,6 @@
 {
 	"name": "@injinary-wallet/sdk",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"description": "SDK for web apps to interact with the Injinary Wallet browser extension",
 	"author": "Injinary <injinary@gmail.com>",
 	"license": "MIT",
@@ -34,7 +34,9 @@
 			"require": "./dist/index.cjs"
 		}
 	},
-	"files": ["dist"],
+	"files": [
+		"dist"
+	],
 	"scripts": {
 		"build": "tsup",
 		"dev": "tsup --watch",
