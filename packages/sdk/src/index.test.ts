@@ -1,5 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { Connection, InjinaryWalletError, createInjinaryWallet, detect, isAvailable } from "./index.js";
+import {
+	Connection,
+	INJINARY_WALLET_INSTALL_URL,
+	InjinaryWalletError,
+	createInjinaryWallet,
+	detect,
+	isAvailable,
+	openInstallPage,
+	promptInstallIfMissing,
+	showInstallPrompt,
+} from "./index.js";
 
 describe("public surface", () => {
 	it("exports the documented runtime values", () => {
@@ -29,5 +39,31 @@ describe("public surface", () => {
 describe("isAvailable in a non-extension environment", () => {
 	it("resolves to false when window.injinaryWallet is absent", async () => {
 		await expect(isAvailable()).resolves.toBe(false);
+	});
+});
+
+describe("install prompt", () => {
+	it("exports the Chrome Web Store URL", () => {
+		expect(INJINARY_WALLET_INSTALL_URL).toMatch(
+			/^https:\/\/chromewebstore\.google\.com\/detail\/injinary-wallet\//,
+		);
+	});
+
+	it("openInstallPage and showInstallPrompt are safe to call without a DOM", () => {
+		expect(() => openInstallPage()).not.toThrow();
+		const controller = showInstallPrompt();
+		expect(controller).toMatchObject({
+			show: expect.any(Function),
+			hide: expect.any(Function),
+			destroy: expect.any(Function),
+		});
+		expect(() => controller.show()).not.toThrow();
+		expect(() => controller.destroy()).not.toThrow();
+	});
+
+	it("promptInstallIfMissing returns a controller when the wallet is absent", async () => {
+		const controller = await promptInstallIfMissing();
+		expect(controller).not.toBeNull();
+		expect(typeof controller?.show).toBe("function");
 	});
 });

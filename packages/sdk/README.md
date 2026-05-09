@@ -19,15 +19,12 @@ Zero runtime dependencies. Ships ESM + CJS + TypeScript types.
 ## Quick start
 
 ```ts
-import { createInjinaryWallet } from "@injinary-wallet/sdk";
+import { createInjinaryWallet, promptInstallIfMissing } from "@injinary-wallet/sdk";
 
 const wallet = createInjinaryWallet();
 
-if (!(await wallet.isAvailable())) {
-  // Direct the user to install the extension
-  window.open("https://chromewebstore.google.com/detail/injinary-wallet/emnpfdhpjmgbdgmbpcbloncillceljgp");
-  return;
-}
+// One-liner: shows a floating install banner if the extension is missing.
+if (await promptInstallIfMissing({ appName: "My App" })) return;
 
 const connection = await wallet.connect({
   appName: "My App",
@@ -89,6 +86,32 @@ Returned from `wallet.connect(...)` after the user approves access.
 | `disconnect()` | `void` | Tear down listeners |
 
 Events: `budgetWarning`, `disconnected`, `permissionsChanged`.
+
+### Install prompt
+
+Helpers for pointing users to the Chrome Web Store when the extension isn't installed:
+
+```ts
+import {
+  INJINARY_WALLET_INSTALL_URL,
+  openInstallPage,
+  promptInstallIfMissing,
+  showInstallPrompt,
+} from "@injinary-wallet/sdk";
+
+// Auto-detect, then render a floating banner if the wallet is missing.
+await promptInstallIfMissing({ appName: "My App", position: "bottom-right" });
+
+// Or render the banner unconditionally and control it yourself.
+const prompt = showInstallPrompt({ appName: "My App", dismissible: true });
+prompt.hide();
+prompt.destroy();
+
+// Or just open the store page in a new tab.
+openInstallPage(); // defaults to INJINARY_WALLET_INSTALL_URL
+```
+
+`InstallPromptOptions`: `appName`, `position` (`top` / `bottom` / `top-left` / `top-right` / `bottom-left` / `bottom-right`), `installUrl`, `message`, `ctaLabel`, `dismissible`, `zIndex`, `onInstall`, `onDismiss`.
 
 ### Errors
 

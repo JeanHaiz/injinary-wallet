@@ -5,6 +5,17 @@ import { sendRpc } from "./transport.js";
 
 export { Connection } from "./connection.js";
 export { detect, isAvailable } from "./detect.js";
+export {
+	INJINARY_WALLET_INSTALL_URL,
+	openInstallPage,
+	promptInstallIfMissing,
+	showInstallPrompt,
+} from "./install-prompt.js";
+export type {
+	InstallPromptController,
+	InstallPromptOptions,
+	InstallPromptPosition,
+} from "./install-prompt.js";
 export { InjinaryWalletError } from "./transport.js";
 
 // Re-export shared types that app developers need

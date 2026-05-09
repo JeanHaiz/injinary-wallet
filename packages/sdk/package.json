@@ -1,6 +1,6 @@
 {
 	"name": "@injinary-wallet/sdk",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"description": "SDK for web apps to interact with the Injinary Wallet browser extension",
 	"author": "Injinary <injinary@gmail.com>",
 	"license": "MIT",
